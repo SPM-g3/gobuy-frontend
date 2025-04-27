@@ -1,5 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
+import { redirect } from "next/navigation"
 import { useRouter } from "next/navigation"
 import apiClient from "@/lib/apiClient"
 
@@ -19,8 +20,13 @@ export default ({ orderID, address, price }) => {
     router.push(`/payment/${orderID}?price=${price}`)
   }
 
+  const handlePay = async()=>{
+    const res = await apiClient.get(`/payment/${orderID}`,{order_id:orderID})
+    redirect(res.data.url);
+  }
+
   return (
-    <Button onClick={handlePayClick} className="bg-green-500 hover:bg-green-600">
+    <Button onClick={handlePay} className="bg-green-500 hover:bg-green-600">
       Pay
     </Button>
   )

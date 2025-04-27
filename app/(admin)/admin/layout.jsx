@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, ShoppingBag,BadgeJapaneseYen,Undo2,ArrowUpNarrowWide } from 'lucide-react'
+import { Users, ShoppingBag,BadgeJapaneseYen,Undo2,ArrowUpNarrowWide,ChartColumn } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import {
   Sidebar,
@@ -72,6 +72,17 @@ export default function AdminLayout({ children }) {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild className={cn(
+                    "w-full justify-start",
+                    pathname === "/admin/salesReport" && "bg-muted"
+                  )}>
+                    <Link href="/admin/salesReport">
+                      <ChartColumn className="mr-2 h-4 w-4" />
+                      Sales Report
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>              
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={cn(
                     "w-full justify-start",

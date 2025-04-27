@@ -25,6 +25,9 @@ export default function Page() {
   const search = searchParams.get('search') || ""
   const currentPage = Number(params.page?.[0] || 1)
   const productsPerPage = 10
+  const minPrice = searchParams.get('min_price') || ''
+  const maxPrice = searchParams.get('max_price') || ''
+  const brand = searchParams.get('brand') || ''
   
   // 数据获取函数
   const fetchProducts = async () => {
@@ -34,6 +37,9 @@ export default function Page() {
         size: productsPerPage,
         query: search,
         category: category,
+        min_price: minPrice,
+        max_price: maxPrice,
+        brand: brand,
       }).toString();
       const res = await apiClient.get(`/product/search?${queryParams}`);
       setProducts(res.data.products)
@@ -56,7 +62,7 @@ export default function Page() {
   useEffect(() => {
     fetchProducts()
     fetchPromotions()
-  }, [currentPage, search, category])
+  }, [currentPage, search, category, minPrice, maxPrice, brand])
 
   // 分类选择处理
   const handleCategoryChange = (value) => {
@@ -67,6 +73,35 @@ export default function Page() {
       newParams.set('category', value) // 设置新的 category 参数
     }
     router.replace(`?${newParams.toString()}`) // 无刷新更新URL
+  }
+
+  // 价格和品牌筛选处理
+  const handleMinPriceChange = (e) => {
+    const newParams = new URLSearchParams(searchParams)
+    if (e.target.value === '') {
+      newParams.delete('min_price')
+    } else {
+      newParams.set('min_price', e.target.value)
+    }
+    router.replace(`?${newParams.toString()}`)
+  }
+  const handleMaxPriceChange = (e) => {
+    const newParams = new URLSearchParams(searchParams)
+    if (e.target.value === '') {
+      newParams.delete('max_price')
+    } else {
+      newParams.set('max_price', e.target.value)
+    }
+    router.replace(`?${newParams.toString()}`)
+  }
+  const handleBrandChange = (e) => {
+    const newParams = new URLSearchParams(searchParams)
+    if (e.target.value === '') {
+      newParams.delete('brand')
+    } else {
+      newParams.set('brand', e.target.value)
+    }
+    router.replace(`?${newParams.toString()}`)
   }
 
   const categories = [
@@ -83,7 +118,7 @@ export default function Page() {
   return (  
     <>
       <div>
-        <div className='flex gap-2 mb-2'>
+        <div className='flex gap-2 mb-2 flex-wrap'>
           {/* 新增分类选择器 */}
           <div className="w-48">
             <Select
@@ -103,9 +138,34 @@ export default function Page() {
               </SelectContent>
             </Select>
           </div>
-
-          <SearchInput currentPage={currentPage} initialSearch={search}/>
-          <AgentSearch/>
+          {/* 新增价格区间筛选 */}
+          <input
+            type="number"
+            min="0"
+            placeholder="Min Price"
+            value={minPrice}
+            onChange={handleMinPriceChange}
+            className="w-24 p-2 border rounded text-sm"
+          />
+          <span className="self-center text-sm">-</span>
+          <input
+            type="number"
+            min="0"
+            placeholder="Max Price"
+            value={maxPrice}
+            onChange={handleMaxPriceChange}
+            className="w-24 p-2 border rounded text-sm"
+          />
+          {/* 新增品牌筛选 */}
+          <input
+            type="text"
+            placeholder="Brand"
+            value={brand}
+            onChange={handleBrandChange}
+            className="w-32 p-2 border rounded text-sm"
+          />
+          <SearchInput currentPage={currentPage} initialSearch={search} className="text-sm"/>
+          <AgentSearch className="text-sm"/>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
