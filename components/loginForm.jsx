@@ -38,18 +38,30 @@ export function LoginForm({
   }
 
   const handleLogin = async()=>{
+    try {
       const res = await apiClient.post("/login", {
         email,
         password,
-        // is_seller: userType === 'seller' // 根据用户类型添加字段
+        is_seller: userType === 'seller' // 根据用户类型添加字段
       })
-      const {username,access_token} = res.data;
+      const {username,access_token, userId} = res.data;
       localStorage.setItem("username", username)
+      localStorage.setItem("is_seller", userType === 'seller')
+      localStorage.setItem("userId", userId)
       document.cookie = `Authorization=Bearer ${access_token}; Path=/; SameSite=Lax`;
 
       console.log( document.cookie)
       router.push("/")
+    }  catch (error) {
+      if (error.response && error.response.status === 401) {
+        alert("Login failed: Incorrect email or password.");
+      } else {
+        console.error("Login error:", error);
+        alert("Login failed: Incorrect email or password.");
+      }
+    }
   }
+  
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -102,7 +114,7 @@ export function LoginForm({
                 <div className="text-sm text-gray-600">
                   <p>Buying for work?</p>
                   <a 
-                    href="/seller" 
+                    href="/seller/login" 
                     className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
                   >
                     Shop on Gobuy Business
@@ -128,7 +140,7 @@ export function LoginForm({
       <Button
         variant="outline"
         className={`w-full rounded-full ${themeConfig[userType].border} ${themeConfig[userType].primary}`}
-        onClick={() => router.push(userType === 'seller' ? '/admin/register' : '/register')}
+        onClick={() => router.push(userType === 'seller' ? '/seller/register' : '/register')}
       >
         Create your Goby {userType === 'seller' ? 'seller' : ''} account
       </Button>
