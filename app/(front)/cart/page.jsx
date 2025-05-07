@@ -8,11 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import apiClient from '@/lib/apiClient'
 import { Checkbox } from "@/components/ui/checkbox"
 import { useParams, useRouter } from 'next/navigation'
-const SubmitButton = ({ selectedItems }) => {
+const SubmitButton = ({ selectedItems, total_price }) => {
   const router = useRouter()
   const handleSubmit = async () => {
     const ids = selectedItems.map(item => item.id);
-    const res = await apiClient.post('/order', { itemIDs: ids });
+    const res = await apiClient.post('/order', { itemIDs: ids, total_price: total_price });
     alert('Order submitted successfully');
     const order = res.data.order;
     router.push(`/orders/${order.id}`)
@@ -26,15 +26,28 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [itemsDiscount, setItemsDiscount] = useState([]);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
     const init = async () => {
       const res = await apiClient.get(`/cart`);
       const items = res.data.items;
       setCartItems(items);
+      const res2 = await apiClient.get(`/product/promotions`);
+      const newItemsDiscount = [];
+      for (const item of items) {
+        const itemDiscount = res2.data.promotions.find(d => parseInt(d.product_id) === parseInt(item.product_id) && d.type === "discount");
+        if (itemDiscount) {
+          newItemsDiscount.push({id:item.id, discount:itemDiscount.discount_rate/100 * item.price});
+        } else {
+          newItemsDiscount.push({id:item.id, discount:0});
+        }
+      }
+      setItemsDiscount(newItemsDiscount);
     }
     init();
-  }, [])
+  }, [reload])
 
   const removeItem = async (id) => {
     const token = localStorage.getItem("access_token"); // 从 localStorage 获取 token
@@ -65,8 +78,9 @@ export default function Cart() {
     let totalPrice = 0;
     for (const selectedItem of selectedItems) {
       const newItem = newItems.find(item => item.id === selectedItem.id);
+      const itemDiscount = itemsDiscount.find(d => d.id === selectedItem.id);
       if (newItem) {
-          totalPrice += newItem.price * newItem.quantity;
+          totalPrice += (newItem.price - itemDiscount.discount) * newItem.quantity;
       }
     }
     setTotal(totalPrice)
@@ -85,8 +99,9 @@ export default function Cart() {
     let totalPrice = 0;
     for (const selectedItem of selected) {
       const newItem = cartItems.find(item => item.id === selectedItem.id);
+      const itemDiscount = itemsDiscount.find(d => d.id === selectedItem.id);
       if (newItem) {
-          totalPrice += newItem.price * newItem.quantity;
+          totalPrice += (newItem.price - itemDiscount.discount) * newItem.quantity;
       }
     }
     setTotal(totalPrice)
@@ -103,6 +118,7 @@ export default function Cart() {
             <TableHead>Image</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Unit Price</TableHead>
+            <TableHead>Discount</TableHead>
             <TableHead>Total Price</TableHead>
             <TableHead></TableHead>
           </TableRow>
@@ -134,7 +150,8 @@ export default function Cart() {
                 />
               </TableCell>
               <TableCell>￥{item.price.toFixed(2)}</TableCell>
-              <TableCell>￥{(item.price * item.quantity).toFixed(2)}</TableCell>
+              <TableCell>￥{(itemsDiscount.find(d => d.id === item.id)?.discount * item.quantity).toFixed(2)}</TableCell>
+              <TableCell>￥{((item.price - itemsDiscount.find(d => d.id === item.id)?.discount) * item.quantity).toFixed(2)}</TableCell>
               <TableCell>
                 <Button variant="destructive" size="sm" onClick={() => removeItem(item.id)}>
                 Remove
@@ -146,7 +163,7 @@ export default function Cart() {
       </Table>
       <div className="mt-6 flex justify-between items-center">
         <p className="text-xl font-semibold">Total: ￥{total.toFixed(2)}</p>
-          <SubmitButton selectedItems={selectedItems} />
+          <SubmitButton selectedItems={selectedItems} total_price={total} />
       </div>
     </div>
   )

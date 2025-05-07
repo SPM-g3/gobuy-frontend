@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 import AddressDropdown from "./addressDropdown"
 import { useParams, useRouter } from 'next/navigation'
 
-export default ({ selectedItems })=>{
+export default ({ selectedItems, total_price })=>{
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [name,setName] = useState("")
     const [price,setPrice] = useState(0.00)
@@ -22,7 +22,8 @@ export default ({ selectedItems })=>{
     const router = useRouter()
     const handleSubmit = async () => {
       const ids = selectedItems.map(item => item.id);
-      const res = await apiClient.post('/order', { itemIDs: ids });
+      const res = await apiClient.post('/order', { itemIDs: ids, total_price: total_price });
+      console.log(total_price);
       alert('Order submitted successfully');
       const order = res.data.order;
       router.push(`/orders/${order.id}`)
