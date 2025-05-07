@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react'
 import { FaStar } from 'react-icons/fa';
 import { Input } from "@/components/ui/input"
 
-export default function OrderPage({ params }) {
+export default function OrderPage({ params, userType = "buyer", }) {
   const [order, setOrder] = useState(null)
   const [addresses, setAddresses] = useState([])
   const [selectedAddress, setSelectedAddress] = useState(null)
@@ -71,7 +71,7 @@ export default function OrderPage({ params }) {
           return
         }
 
-        const res = await apiClient.get('/user'); // 调用后端 API 获取用户数据
+        const res = await apiClient.get(`/user`); // 调用后端 API 获取用户数据
         const { name, email, password, addresses } = res.data;
         setAddresses(addresses || []);
 
@@ -79,6 +79,7 @@ export default function OrderPage({ params }) {
         if (addresses.length > 0) {
           setSelectedAddress(addresses[0])
         }
+        
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -269,7 +270,7 @@ export default function OrderPage({ params }) {
             </div>
             <div>
               <h3 className="font-semibold mb-2">Shipping Information</h3>
-              {order.status === 1 || order.status === 2 ? (
+              {order.status != 0 ? (
               <>
                 {/* // Display order's shipping address if already paid */}
                 <div className="mt-4">
@@ -284,7 +285,7 @@ export default function OrderPage({ params }) {
                   </div>
                 </div>
               </>
-              ) : (
+              ):(
                 // Allow user to select an address if not paid
                 <div>
                   <label htmlFor="address-select" className="block mb-2">

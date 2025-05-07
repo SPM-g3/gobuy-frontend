@@ -94,7 +94,7 @@ export default function OrderManagement({searchParams,params}){
               <TableCell>{order.number}</TableCell>
               <TableCell>{order.name}</TableCell>
               <TableCell>{order.created_at}</TableCell>
-              <TableCell>￥{order.total_price}</TableCell>
+              <TableCell>￥{order.total_price-order.discount}</TableCell>
               <TableCell>
                 <Badge variant={
                    order.status === 0 ? 'secondary' : (order.status === 1 || order.status === 2 || order.status === 3) ? 'success' : 'destructive'
@@ -117,7 +117,7 @@ export default function OrderManagement({searchParams,params}){
                 )}
               </TableCell>
               <TableCell>
-                <Link href={`/orders/${order.id}`}>
+                <Link href={`/orders/admin/${order.id}`}>
                   <Button variant="ghost" size="sm">
                     <Eye className="mr-2 h-4 w-4" />
                     View Details
