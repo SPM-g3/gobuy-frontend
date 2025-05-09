@@ -28,7 +28,7 @@ export default function AdminLayout({ children }) {
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
-                <SidebarMenuItem>
+                {/* <SidebarMenuItem>
                   <SidebarMenuButton asChild className={cn(
                     "w-full justify-start",
                     pathname === "/admin/users" && "bg-muted"
@@ -38,7 +38,7 @@ export default function AdminLayout({ children }) {
                       User Management
                     </Link>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
+                </SidebarMenuItem> */}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={cn(
                     "w-full justify-start",

@@ -90,7 +90,26 @@ export function Header() {
                 <Button variant="ghost" className="hover:text-orange-500">
                   <LogOut className="h-5 w-5" />
                   <span className="hover:text-orange-500">Login</span>
-                  <span className="sr-only">登出</span>
+                  <span className="sr-only">Login</span>
+                </Button>
+              </Link>
+            </li>
+            <li>
+            <Link href="#" onClick={(e) => {
+                e.preventDefault();
+                // 清除本地存储
+                localStorage.removeItem("username");
+                localStorage.removeItem("is_seller");
+                localStorage.removeItem("userId");
+                // 清除认证cookie
+                document.cookie = "Authorization=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+                // 重定向到登录页面
+                router.push("/login");
+              }}>
+                <Button variant="ghost" className="hover:text-orange-500">
+                  <LogOut className="h-5 w-5" />
+                  <span className="hover:text-orange-500">Logout</span>
+                  <span className="sr-only">Logout</span>
                 </Button>
               </Link>
             </li>

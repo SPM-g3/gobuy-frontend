@@ -103,11 +103,12 @@ export default function OrderManagement({searchParams,params}){
                 </Badge>
               </TableCell>
               <TableCell>
-                {order.tracking_number ? (
+                {order.tracking_number && (order.status === 2 || order.status === 3) && (
                   <div>
                     {order.tracking_number}
                   </div>
-                ) : (
+                )}
+                {order.status === 1 && (
                   <Button variant="outline" size="sm" className="text-blue-900 border-blue-500 hover:bg-blue-500 hover:text-white" onClick={() => {
                     setSelectedOrder(order)
                     setDialogOpen(true)

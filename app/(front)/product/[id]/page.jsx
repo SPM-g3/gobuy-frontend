@@ -30,7 +30,7 @@ export default async function ProductPage({ params }) {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="relative aspect-square">
           <Image
-            src={product.image || "/placeholder.svg"}
+            src={product.image || null}
             alt={product.name}
             layout="fill"
             objectFit="cover"
@@ -50,7 +50,8 @@ export default async function ProductPage({ params }) {
                 <>￥{product.price.toFixed(2)}</>
               )}
             </p>
-            <p className="text-gray-600 mb-4">Stock: {product.stock} items</p>
+            <p className="text-gray-600 mb-0">Stock: {product.stock} items</p>
+            <p className="text-gray-600 mb-4">Seller: {product.seller_id}</p>
             <div className="prose max-w-none mb-6">
               <p>{product.description}</p>
             </div>
@@ -79,7 +80,7 @@ export default async function ProductPage({ params }) {
               )}
             </div>
           </div>
-          <AddButton productID={product.id}/>
+          <AddButton productID={product.id} sellerID={product.seller_id}/>
         </div>
       </div>
     </div>

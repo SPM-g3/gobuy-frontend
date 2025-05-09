@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button"
 import apiClient from "@/lib/apiClient"
 
 
-export default ({productID})=>{
+export default ({productID, sellerID})=>{
     const handleAdd = async()=>{
+        if (localStorage.getItem("is_seller") === "true" && parseInt(localStorage.getItem("userId")) === parseInt(sellerID)){
+            alert("You are not allowed to buy your own product");
+            return;
+        }
         const res = await apiClient.post(`/cart/${productID}`);
         alert("Added to cart successfully");
     }

@@ -21,6 +21,14 @@ export default ({ orderID, address, price }) => {
   }
 
   const handlePay = async()=>{
+    const reqbody = {
+      order_id:parseInt(orderID),
+      address_name:address.address_name,
+      address_phone:address.address_phone,
+      address:address.address
+    }
+    const addrres = await apiClient.put(`/order/orderAddress`,reqbody)
+
     const res = await apiClient.get(`/payment/${orderID}`,{order_id:orderID})
     redirect(res.data.url);
   }
