@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 
 export function RegisterForm({
   className,
+  userType = "buyer",
   ...props
 }) {
   const router = useRouter()
@@ -28,6 +29,19 @@ export function RegisterForm({
     confirmPassword: ''
   })
   const [error, setError] = useState('')
+
+  const themeConfig = {
+    buyer: {
+      primary: 'text-yellow-900',
+      button: 'bg-yellow-400 hover:bg-yellow-500',
+      border: 'border-yellow-900'
+    },
+    seller: {
+      primary: 'text-blue-900',
+      button: 'bg-blue-400 hover:bg-blue-500',
+      border: 'border-blue-900'
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -45,16 +59,27 @@ export function RegisterForm({
       const res = await apiClient.post("/register", {
         username: formData.username,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        is_seller: userType === 'seller'
       })
 
       if (res.data.status === 201) {
-        router.push("/login")
+        alert("Register failed: Email is already in use.")
       } else {
+        const res = await apiClient.post("/login", {
+          email: formData.email,
+          password: formData.password,
+          is_seller: userType === 'seller' // 根据用户类型添加字段
+        })
+        const {username,access_token, userId} = res.data;
+        localStorage.setItem("username", username)
+        localStorage.setItem("is_seller", userType === 'seller' )
+        localStorage.setItem("userId", userId)
+        document.cookie = `Authorization=Bearer ${access_token}; Path=/; SameSite=Lax`;
         router.push("/")
-        }
+      }
     } catch (err) {
-        console.log("Response status:", res.status)
+      console.log("Response status:", err.response?.status)
       setError(err.response?.data?.message || 'Email is already in use')
     }
   }
@@ -70,7 +95,9 @@ export function RegisterForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Create account</CardTitle>
+          <CardTitle className={`text-2xl ${themeConfig[userType].primary}`}>
+            {userType === 'seller' ? 'Create business account' : 'Create account'}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -132,13 +159,19 @@ export function RegisterForm({
                 />
               </div>
 
-              <Button type="submit" className="w-full text-black rounded-full border-black bg-yellow-400 hover:bg-yellow-500">
+              <Button 
+                type="submit" 
+                className={`w-full text-black rounded-full ${themeConfig[userType].border} ${themeConfig[userType].button}`}
+              >
                 Continue
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-                Already have an account?&nbsp;
-              <a href="/login" className="underline underline-offset-4">
+              Already have an account?&nbsp;
+              <a 
+                href={userType === 'seller' ? '/seller/login' : '/login'} 
+                className={`underline underline-offset-4 ${themeConfig[userType].primary}`}
+              >
                 Sign in
               </a>
             </div>
