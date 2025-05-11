@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { ShoppingCart, User, LogOut,Amphora,House,TableProperties,BadgeJapaneseYen } from 'lucide-react'
+import { ShoppingCart, User, LogIn, LogOut,Amphora,House,TableProperties,BadgeJapaneseYen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import apiClient from "@/lib/apiClient"
 import { useRouter } from 'next/navigation'
@@ -71,7 +71,7 @@ export function Header() {
                   router.push('/admin/products');
                 } else {
                   // 如果不是 seller，跳转到 seller 登录页面
-                  router.push('/seller');
+                  router.push('/seller/login');
                 }
               } catch (error) {
                 console.error('Error checking user role:', error);
@@ -88,7 +88,7 @@ export function Header() {
             <li>
               <Link href="/login">
                 <Button variant="ghost" className="hover:text-orange-500">
-                  <LogOut className="h-5 w-5" />
+                  <LogIn className="h-5 w-5" />
                   <span className="hover:text-orange-500">Login</span>
                   <span className="sr-only">Login</span>
                 </Button>

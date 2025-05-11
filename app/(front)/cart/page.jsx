@@ -13,9 +13,14 @@ const SubmitButton = ({ selectedItems, total_price }) => {
   const handleSubmit = async () => {
     const ids = selectedItems.map(item => item.id);
     const res = await apiClient.post('/order', { itemIDs: ids, total_price: total_price });
-    alert('Order submitted successfully');
-    const order = res.data.order;
-    router.push(`/orders/${order.id}`)
+    console.log(res);
+    if(res.message === 'success'){
+      alert('Order submitted successfully');
+      const order = res.data.order;
+      router.push(`/orders/${order.id}`)
+    }else{
+      alert('Items in an order must be from the same seller');
+    }
   }
   return (
     <Button disabled={selectedItems.length === 0 } onClick={handleSubmit}>Submit Order</Button>
@@ -115,6 +120,7 @@ export default function Cart() {
           <TableRow>
             <TableHead>Select</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Seller</TableHead>
             <TableHead>Image</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Unit Price</TableHead>
@@ -133,6 +139,7 @@ export default function Cart() {
                 />
               </TableCell>
               <TableCell>{item.name}</TableCell>
+              <TableCell>{item.seller_id}</TableCell>
               <TableCell>
                 <img
                   src={item.image || "/placeholder.svg"}

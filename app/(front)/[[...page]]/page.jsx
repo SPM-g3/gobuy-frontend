@@ -32,8 +32,12 @@ export default function Page() {
   // 数据获取函数
   const fetchProducts = async () => {
     try {
+      let page = search ? 1 : currentPage;
+      if (isNaN(page)) {
+        page = 1;
+      }
       const queryParams = new URLSearchParams({
-        page: search ? 1 : currentPage,
+        page: page,
         size: productsPerPage,
         query: search,
         category: category,

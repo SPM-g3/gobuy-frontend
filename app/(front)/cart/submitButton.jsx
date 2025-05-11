@@ -23,10 +23,15 @@ export default ({ selectedItems, total_price })=>{
     const handleSubmit = async () => {
       const ids = selectedItems.map(item => item.id);
       const res = await apiClient.post('/order', { itemIDs: ids, total_price: total_price });
-      console.log(total_price);
-      alert('Order submitted successfully');
-      const order = res.data.order;
-      router.push(`/orders/${order.id}`)
+      console.log(res);
+      if(res.status === 200){
+        alert('Order submitted successfully');
+        const order = res.data.order;
+        router.push(`/orders/${order.id}`)
+      }else{
+        alert('订单中的商品必须来自同一个卖家');
+        alert(res.data.message);
+      }
     }
     return (
         <>

@@ -235,6 +235,7 @@ export default function OrderPage({ params, userType = "buyer", }) {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <h3 className="font-semibold mb-2">Order Information</h3>
+              <div>Seller: {order.seller_id}</div>
               <div>Order Number: {order.number}</div>
               <div>Creation Date: {order.created_at}</div>
               <div>
