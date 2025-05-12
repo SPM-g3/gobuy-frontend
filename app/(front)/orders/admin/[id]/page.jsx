@@ -72,7 +72,7 @@ export default function OrderPage({ params, userType = "buyer", }) {
 
   return (
     <div>
-      <Link href="/orders">
+      <Link href="/admin/orders">
         <Button variant="ghost" className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           View All Orders

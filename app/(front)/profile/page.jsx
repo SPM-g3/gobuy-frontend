@@ -12,6 +12,8 @@ export default function Profile() {
     name: '',
     email: '',
     password: '',
+    is_seller: false,
+    user_id: '',
   })
 
   const [addresses, setAddresses] = useState([])
@@ -27,6 +29,8 @@ export default function Profile() {
           name: name || '',
           email: email || '',
           password: password || '', // 密码通常不会从后端返回
+          is_seller: localStorage.getItem('is_seller') === 'true' || false,
+          user_id: localStorage.getItem('userId') || '',
         });
 
         setAddresses(addresses || []);
@@ -110,6 +114,13 @@ export default function Profile() {
                   value={user.email}
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
                 />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="is_seller">SellerID</Label>
+                {user.is_seller && 
+                <div>
+                  <p>{user.user_id}</p>
+                </div>}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
