@@ -25,6 +25,7 @@ export default function OrderPage({ params, userType = "buyer", }) {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [discountedPrice, setDiscountedPrice] = useState(order ? order.total_price : 0);
   const [couponCode, setCouponCode] = useState('');
+  const [productReviews, setProductReviews] = useState({});
 
   const toggleReviewInput = (index) => {
     setActiveReviewIndex(activeReviewIndex === index ? null : index);
@@ -60,6 +61,18 @@ export default function OrderPage({ params, userType = "buyer", }) {
         const orderRes = await apiClient.get(`/order/${id}`)
         const fetchedOrder = orderRes.data.order
         setOrder(fetchedOrder)
+
+        // 获取每个商品的评论
+        const reviewsPromises = fetchedOrder.items.map(item => 
+          apiClient.get(`/product/${item.product_id}/reviews`)
+        );
+        const reviewsResponses = await Promise.all(reviewsPromises);
+        const reviewsMap = {};
+        reviewsResponses.forEach((response, index) => {
+          const productId = fetchedOrder.items[index].product_id;
+          reviewsMap[productId] = response.data.reviews;
+        });
+        setProductReviews(reviewsMap);
 
         // If order is already paid, no need to fetch addresses
         if (fetchedOrder.status === 1) {
@@ -165,9 +178,20 @@ export default function OrderPage({ params, userType = "buyer", }) {
 
   const handleSubmitReview = async (index) => {
     const { rating, comment } = reviews[index];
+    const productId = order.items[index].product_id;
+    
+    // 检查是否已经评论过
+    const existingReviews = productReviews[productId] || [];
+    const hasReviewed = existingReviews.some(review => review.user_id === order.user_id);
+    
+    if (hasReviewed) {
+      alert('You have already commented on this product');
+      return;
+    }
+
     try {
       await apiClient.post(`/product/reviews`, {
-        product_id: order.items[index].product_id,
+        product_id: productId,
         user_id: order.user_id,
         rating,
         comment,
@@ -178,6 +202,13 @@ export default function OrderPage({ params, userType = "buyer", }) {
       const updatedReviews = [...reviews];
       updatedReviews[index] = { rating, comment };
       setReviews(updatedReviews);
+
+      // 重新获取该商品的评论
+      const reviewsRes = await apiClient.get(`/product/${productId}/reviews`);
+      setProductReviews(prev => ({
+        ...prev,
+        [productId]: reviewsRes.data.reviews
+      }));
     } catch (error) {
       console.error('Error submitting review:', error);
     }
@@ -360,25 +391,38 @@ export default function OrderPage({ params, userType = "buyer", }) {
                     <TableCell>￥{(item.quantity * item.price).toFixed(2)}</TableCell>
                     <TableCell>
                       {order.status === 3 && (
-                        <Button onClick={() => toggleReviewInput(idx)} className="mt-2">
-                          {activeReviewIndex === idx ? 'Hide Review' : 'Review'}
-                        </Button>
+                        <>
+                          {(() => {
+                            const productId = item.product_id;
+                            const existingReviews = productReviews[productId] || [];
+                            const userReview = existingReviews.find(review => review.user_id === order.user_id);
+                            
+                            if (userReview) {
+                              return (
+                                <div className="space-y-2">
+                                  <div className="flex items-center">
+                                    {[...Array(5)].map((_, i) => (
+                                      <FaStar
+                                        key={i}
+                                        size={16}
+                                        color={i < userReview.rating ? "#ffc107" : "#e4e5e9"}
+                                      />
+                                    ))}
+                                  </div>
+                                  <p className="text-sm text-gray-600">{userReview.comment}</p>
+                                </div>
+                              );
+                            }
+                            
+                            return (
+                              <Button onClick={() => toggleReviewInput(idx)} className="mt-2">
+                                {activeReviewIndex === idx ? 'Hide Review' : 'Review'}
+                              </Button>
+                            );
+                          })()}
+                        </>
                       )}
                     </TableCell>
-                    {/* <TableCell>
-                      商品级发货信息展示 
-                      {item.item_status === true ? (
-                        <div className="space-y-1">
-                          <div><span className="font-medium">Status:</span> 
-                            <Badge variant="success" className="ml-2">Shipped</Badge>
-                          </div> *
-                          <div><span className="font-medium">Shipping Time:</span> {item.shipped_at}</div>
-                          <div><span className="font-medium">Tracking Number:</span> {item.tracking_number}</div>
-                        </div>
-                      ) : (
-                        <Badge variant="secondary">Processing</Badge>
-                      )}
-                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

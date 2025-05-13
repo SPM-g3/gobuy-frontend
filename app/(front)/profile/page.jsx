@@ -115,13 +115,13 @@ export default function Profile() {
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
                 />
               </div>
+              {user.is_seller && 
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="is_seller">SellerID</Label>
-                {user.is_seller && 
-                <div>
-                  <p>{user.user_id}</p>
-                </div>}
-              </div>
+                <div>S
+         S         <p>{user.user_id}</p>
+                </div>
+              </div>}
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
                 <Input 
