@@ -169,7 +169,7 @@ export default function Page() {
             className="w-32 p-2 border rounded text-sm"
           />
           <SearchInput currentPage={currentPage} initialSearch={search} className="text-sm"/>
-          <AgentSearch className="text-sm"/>
+          {/* <AgentSearch className="text-sm"/> */}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
